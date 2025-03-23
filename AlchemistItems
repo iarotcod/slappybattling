@@ -1,0 +1,102 @@
+print("Made by .doctorai")
+print("if i see u skid this im gonna skin you alive (pls dont skid)")
+
+local player = game.Players.LocalPlayer
+
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+screenGui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0.5, -100, 0, 10)
+frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+frame.Active = true
+frame.Draggable = true
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 12)
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "funny gui"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 20
+title.TextStrokeTransparency = 0.5
+
+local titleCorner = Instance.new("UICorner", title)
+titleCorner.CornerRadius = UDim.new(0, 8)
+
+local closeButton = Instance.new("TextButton", frame)
+closeButton.Size = UDim2.new(0, 20, 0, 20)
+closeButton.Position = UDim2.new(1, -25, 0, 5)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.BackgroundColor3 = Color3.new(1, 0, 0)
+closeButton.BorderSizePixel = 0
+closeButton.Font = Enum.Font.GothamBlack
+closeButton.TextSize = 14
+
+local closeButtonCorner = Instance.new("UICorner", closeButton)
+closeButtonCorner.CornerRadius = UDim.new(0, 8)
+
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+local button = Instance.new("TextButton", frame)
+button.Size = UDim2.new(1, -10, 0, 40)
+button.Position = UDim2.new(0, 5, 0, 40)
+button.Text = "Tp to Alchemist Items"
+button.TextColor3 = Color3.new(1, 1, 1)
+button.BackgroundColor3 = Color3.new(0, 0.5, 0)
+button.BorderSizePixel = 0
+button.Font = Enum.Font.GothamBlack
+button.TextSize = 14
+
+local buttonCorner = Instance.new("UICorner", button)
+buttonCorner.CornerRadius = UDim.new(0, 8)
+
+local function teleportToAlchemistItems()
+    local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not rootPart then return end
+
+    local originalPosition = rootPart.CFrame
+
+    for _, item in pairs(workspace.Alchemist_Ingredients_:GetChildren()) do
+        local targetPart = item:IsA("Model") and (item.PrimaryPart or item:FindFirstChild("HumanoidRootPart")) or item
+        if targetPart and targetPart:IsA("BasePart") then
+            rootPart.CFrame = targetPart.CFrame
+            task.wait(0.01 / 1000)
+        end
+    end
+
+    rootPart.CFrame = originalPosition
+end
+
+button.MouseButton1Click:Connect(function()
+    teleportToAlchemistItems()
+end)
+
+local dragInput, dragStart, startPos
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragStart = nil
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        if dragStart then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end
+end)
