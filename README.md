@@ -1,3 +1,4 @@
 Info/Alerts
 
-1. Swords may spawn duplicated or may not spawn
+1. pls dont skid 😭
+2. Swords may spawn duplicated or may not spawn
