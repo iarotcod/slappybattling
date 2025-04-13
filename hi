@@ -1,0 +1,269 @@
+-- // Ultimate 100X Fling Script - Fixed Dragging
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local CoreGui = game:GetService("CoreGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- ===== CLEANUP PREVIOUS INSTANCES =====
+if CoreGui:FindFirstChild("UltraFlingGUI") then
+    CoreGui.UltraFlingGUI:Destroy()
+end
+if CoreGui:FindFirstChild("TempNotification") then
+    CoreGui.TempNotification:Destroy()
+end
+
+-- ===== CONFIGURATION =====
+local hasDied = false
+local ghostActive = false
+
+-- ===== CORE FUNCTIONS =====
+local function CreateNotification(text)
+    local notifyGui = Instance.new("ScreenGui")
+    notifyGui.Name = "TempNotification"
+    notifyGui.Parent = CoreGui
+    notifyGui.ResetOnSpawn = false
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 250, 0, 40)
+    frame.Position = UDim2.new(0.5, -125, 0.7, -20)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.BackgroundTransparency = 0.3
+    frame.Parent = notifyGui
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -10, 1, -10)
+    label.Position = UDim2.new(0, 5, 0, 5)
+    label.Text = text
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 14
+    label.Parent = frame
+    
+    task.delay(3, function()
+        notifyGui:Destroy()
+    end)
+end
+
+local function SafeTeleportToOrigin()
+    if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        local root = Player.Character.HumanoidRootPart
+        root.Velocity = Vector3.new()
+        root.RotVelocity = Vector3.new()
+        task.wait(0.1)
+        root.CFrame = CFrame.new(0, 100, 0)
+        task.wait(0.1)
+        root.CFrame = CFrame.new(0, 0, 0)
+    end
+end
+
+local function ActivateGhost()
+    if not ghostActive then
+        pcall(function()
+            ReplicatedStorage.Ghostinvisibilityactivated:FireServer()
+            ghostActive = true
+        end)
+    end
+end
+
+local function RemoveBarriers()
+    local barriers = {
+        "DEATHBARRIER", "DEATHBARRIER2", "ArenaBarrier", 
+        "AntiDefaultArena", "AntiDream", "dedBarrier"
+    }
+    
+    for _, barrierName in pairs(barriers) do
+        local barrier = Workspace:FindFirstChild(barrierName)
+        if barrier then
+            barrier:Destroy()
+        end
+    end
+    CreateNotification("✅ Death barriers removed")
+end
+
+-- ===== FLING SYSTEM =====
+local function UltraFlingPlayer(targetPlayer)
+    local character = Player.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    local rootPart = humanoid and humanoid.RootPart
+
+    local targetCharacter = targetPlayer.Character
+    local targetHumanoid = targetCharacter and targetCharacter:FindFirstChildOfClass("Humanoid")
+    local targetRoot = targetHumanoid and targetHumanoid.RootPart
+
+    if not rootPart or not targetRoot then return end
+
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.Name = "UltraFlingVel"
+    bodyVelocity.Parent = rootPart
+    bodyVelocity.Velocity = Vector3.new(1e6, 1e6, 1e6)
+    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+
+    local startTime = tick()
+    local connection
+    connection = RunService.Heartbeat:Connect(function()
+        if not rootPart or not targetRoot then
+            connection:Disconnect()
+            return
+        end
+
+        local angle = tick() * 500 % 360
+        local offset = CFrame.new(0, 1.5, 0)
+        local rotation = CFrame.Angles(math.rad(angle), math.rad(angle), math.rad(angle))
+        
+        rootPart.CFrame = targetRoot.CFrame * offset * rotation
+        rootPart.Velocity = Vector3.new(1e5, 1e5, 1e5)
+        rootPart.RotVelocity = Vector3.new(1e6, 1e6, 1e6)
+
+        if tick() > startTime + 3 then
+            connection:Disconnect()
+            bodyVelocity:Destroy()
+            rootPart.Velocity = Vector3.new()
+            rootPart.RotVelocity = Vector3.new()
+            task.wait(0.1)
+            SafeTeleportToOrigin()
+        end
+    end)
+end
+
+-- ===== GUI CREATION =====
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "UltraFlingGUI"
+screenGui.Parent = CoreGui
+screenGui.ResetOnSpawn = false
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 220, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -110, 0.5, -150)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 8)
+uiCorner.Parent = mainFrame
+
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Size = UDim2.new(1, 0, 0, 33)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Text = "ULTRA FLING (100X)"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 15
+title.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 8)
+titleCorner.Parent = title
+
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.Size = UDim2.new(0, 28, 0, 28)
+closeButton.Position = UDim2.new(1, -33, 0, 3)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Text = "X"
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 15
+closeButton.Parent = title
+
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Name = "PlayerList"
+scrollingFrame.Size = UDim2.new(1, -11, 1, -39)
+scrollingFrame.Position = UDim2.new(0, 6, 0, 39)
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.ScrollBarThickness = 6
+scrollingFrame.Parent = mainFrame
+
+local uiListLayout = Instance.new("UIListLayout")
+uiListLayout.Padding = UDim.new(0, 6)
+uiListLayout.Parent = scrollingFrame
+
+-- Fixed dragging implementation
+local userInput = game:GetService("UserInputService")
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+local function UpdatePlayerList()
+    for _, child in ipairs(scrollingFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= Player then
+            local playerButton = Instance.new("TextButton")
+            playerButton.Name = player.Name
+            playerButton.Size = UDim2.new(1, 0, 0, 33)
+            playerButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+            playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            playerButton.Text = player.DisplayName .. " (@" .. player.Name .. ")"
+            playerButton.Font = Enum.Font.Gotham
+            playerButton.TextSize = 13
+            playerButton.TextXAlignment = Enum.TextXAlignment.Left
+            playerButton.Parent = scrollingFrame
+
+            playerButton.MouseButton1Click:Connect(function()
+                UltraFlingPlayer(player)
+            end)
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(UpdatePlayerList)
+Players.PlayerRemoving:Connect(UpdatePlayerList)
+UpdatePlayerList()
+
+uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y)
+end)
+
+-- ===== INITIALIZATION =====
+SafeTeleportToOrigin()
+ActivateGhost()
+RemoveBarriers()
+
+Player.CharacterAdded:Connect(function(character)
+    character:WaitForChild("Humanoid").Died:Connect(function()
+        if not hasDied then
+            hasDied = true
+            pcall(function()
+                ReplicatedStorage.Ghostinvisibilitydeactivated:FireServer()
+            end)
+        end
+    end)
+end)
