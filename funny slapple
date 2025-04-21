@@ -1,0 +1,23 @@
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+ 
+local localPlr = game:GetService("Players").LocalPlayer
+ 
+repeat task.wait() until localPlr.Character ~= nil and localPlr.Character:FindFirstChild("HumanoidRootPart")
+ 
+if not localPlr.Character:FindFirstChild("entered") and localPlr.Character:FindFirstChild("HumanoidRootPart") then
+    repeat wait(0.5)
+        firetouchinterest(localPlr.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 0)
+        firetouchinterest(localPlr.Character.HumanoidRootPart, workspace.Lobby.Teleport1, 1)
+    until localPlr.Character:FindFirstChild("entered") ~= nil
+end
+ 
+for _,v in pairs(workspace.Arena:GetDescendants()) do
+    if string.find(v.Name, "Slapple") and v:FindFirstChild("Glove") and v.Glove:FindFirstChildOfClass("TouchTransmitter") then
+        firetouchinterest(localPlr.Character.HumanoidRootPart, v.Glove, 0)
+        firetouchinterest(localPlr.Character.HumanoidRootPart, v.Glove, 1)
+ 
+        wait(0.05)
+    end
+end
