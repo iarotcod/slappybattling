@@ -1,0 +1,5 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/iarotcod/slappybattling/refs/heads/main/funny%20slapple",true))()
+
+wait(1)
+
+loadstring(game:HttpGet('https://raw.githubusercontent.com/IncognitoScripts/SlapBattles/refs/heads/main/SnowFarm'))()
