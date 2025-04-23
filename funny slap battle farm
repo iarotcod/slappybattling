@@ -27,6 +27,6 @@ if not tryHop() then
         for i = 1, 5 do
             task.spawn(tryHop)
         end
-        task.wait(0.2) -- 5 hops every 0.2 seconds = 25 hops/sec (adjust if needed)
+        task.wait(0.2)
     end
 end
