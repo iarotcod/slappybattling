@@ -1,0 +1,74 @@
+-- Silent Slapple Magnet (No Prints, No Teleports)
+getgenv().StopSlappleMagnet = function()
+    getgenv().farmEnabled = false
+end
+
+getgenv().farmEnabled = true
+
+local function collectSlapples()
+    local localPlayer = game:GetService("Players").LocalPlayer
+    
+    while farmEnabled do
+        if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            for _, obj in pairs(workspace.Arena:GetDescendants()) do
+                if not farmEnabled then break end
+                
+                -- Check for Slapple and its Glove
+                if obj.Name:lower():find("slapple") and obj:FindFirstChild("Glove") then
+                    local glove = obj.Glove
+                    
+                    -- Teleport Slapple to player
+                    if glove:FindFirstChildOfClass("TouchTransmitter") then
+                        firetouchinterest(localPlayer.Character.HumanoidRootPart, glove, 0)
+                        firetouchinterest(localPlayer.Character.HumanoidRootPart, glove, 1)
+                    end
+                    
+                    -- Alternative position method (more aggressive)
+                    if obj:IsA("BasePart") then
+                        obj.CFrame = localPlayer.Character.HumanoidRootPart.CFrame
+                    end
+                end
+            end
+        end
+        task.wait(0.5) -- Faster collection
+    end
+end
+
+-- Start collection
+coroutine.wrap(collectSlapples)()
+
+wait(0.5)
+
+local HeadSize = 25  -- Smaller hitbox size
+local IsDisabled = false  -- Set to false to enable the hitbox effect
+local IsTeamCheckEnabled = false  -- Set to true to exclude teammates from getting hitboxes
+
+game:GetService('RunService').RenderStepped:Connect(function()
+    if not IsDisabled then  -- Change this to 'false' to enable hitboxes
+        local localPlayer = game:GetService('Players').LocalPlayer
+        if not localPlayer then return end
+        
+        local localPlayerTeam = localPlayer.Team
+        
+        for _, player in ipairs(game:GetService('Players'):GetPlayers()) do
+            if player ~= localPlayer and (not IsTeamCheckEnabled or player.Team ~= localPlayerTeam) then
+                local character = player.Character
+                if character then
+                    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                    if humanoidRootPart then
+                        -- Apply the hitbox visual effect (green, smaller size)
+                        humanoidRootPart.Size = Vector3.new(HeadSize, HeadSize, HeadSize)
+                        humanoidRootPart.Transparency = 0.9
+                        humanoidRootPart.BrickColor = BrickColor.new("Gray")
+                        humanoidRootPart.Material = Enum.Material.Plastic
+                        humanoidRootPart.CanCollide = false
+                    end
+                end
+            end
+        end
+    end
+end)
+
+wait(0.5)
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
