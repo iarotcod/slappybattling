@@ -1,0 +1,37 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/iarotcod/slappybattling/refs/heads/main/funny%20slapple"))()
+
+wait(0.5)
+
+while true do
+    local serverList = {}
+    for _, v in ipairs(game:GetService("HttpService"):JSONDecode(game:HttpGetAsync("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100")).data) do
+        if v.playing and type(v) == "table" and v.maxPlayers > v.playing and v.id ~= game.JobId then
+            serverList[#serverList+1] = v.id
+        end
+    end
+    if #serverList > 0 then
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, serverList[math.random(1,#serverList)])
+    end
+    
+    local serverList = {}
+    for _, v in ipairs(game:GetService("HttpService"):JSONDecode(game:HttpGetAsync("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100")).data) do
+        if v.playing and type(v) == "table" and v.maxPlayers > v.playing and v.id ~= game.JobId then
+            serverList[#serverList+1] = v.id
+        end
+    end
+    if #serverList > 0 then
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, serverList[math.random(1,#serverList)])
+    end
+    
+    local serverList = {}
+    for _, v in ipairs(game:GetService("HttpService"):JSONDecode(game:HttpGetAsync("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100")).data) do
+        if v.playing and type(v) == "table" and v.maxPlayers > v.playing and v.id ~= game.JobId then
+            serverList[#serverList+1] = v.id
+        end
+    end
+    if #serverList > 0 then
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, serverList[math.random(1,#serverList)])
+    end
+    
+    wait(0.1)
+end
